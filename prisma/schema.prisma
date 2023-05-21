@@ -1,0 +1,180 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model booking {
+  idbooking    Int            @id @unique(map: "idbooking_UNIQUE") @default(autoincrement())
+  User_idUser  Int
+  user         user           @relation(fields: [User_idUser], references: [idUser], onDelete: NoAction, onUpdate: NoAction, map: "fk_booking_User1")
+  room_seats   room_seats[]
+  theatre_room theatre_room[]
+
+  @@index([User_idUser], map: "fk_booking_User1_idx")
+}
+
+model calendar {
+  idcalendar                  Int             @id
+  name                        String          @db.VarChar(45)
+  movie_idmovie               Int
+  room_details_idroom_details Int
+  movie                       movie           @relation(fields: [movie_idmovie], references: [idmovie], onDelete: NoAction, onUpdate: NoAction, map: "fk_calendar_movie1")
+  room_details                room_details    @relation(fields: [room_details_idroom_details], references: [idroom_details], onDelete: NoAction, onUpdate: NoAction, map: "fk_calendar_room_details1")
+  calendar_days               calendar_days[]
+
+  @@index([movie_idmovie], map: "fk_calendar_movie1_idx")
+  @@index([room_details_idroom_details], map: "fk_calendar_room_details1_idx")
+}
+
+model calendar_days {
+  idtable1            Int              @id @default(autoincrement())
+  day                 DateTime         @db.Date
+  calendar_idcalendar Int
+  calendar            calendar         @relation(fields: [calendar_idcalendar], references: [idcalendar], onDelete: NoAction, onUpdate: NoAction, map: "fk_calendar_days_calendar1")
+  calendar_hours      calendar_hours[]
+
+  @@index([calendar_idcalendar], map: "fk_calendar_days_calendar1_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model calendar_hours {
+  idcalendar_hours       Int           @id @default(autoincrement())
+  time_to_show           String        @db.VarChar(45)
+  calendar_days_idtable1 Int
+  calendar_days          calendar_days @relation(fields: [calendar_days_idtable1], references: [idtable1], onDelete: NoAction, onUpdate: NoAction, map: "fk_calendar_hours_calendar_days1")
+
+  @@index([calendar_days_idtable1], map: "fk_calendar_hours_calendar_days1_idx")
+}
+
+model movie {
+  idmovie          Int                @id @unique(map: "idmovie_UNIQUE") @default(autoincrement())
+  title            String             @db.VarChar(45)
+  englishTitle     String             @db.VarChar(45)
+  premiereDate     DateTime           @db.Date
+  duration         String             @db.VarChar(45)
+  age_restriction  String             @default("false") @db.VarChar(45)
+  calendar         calendar[]
+  movie_age_rating movie_age_rating[]
+  movie_details    movie_details[]
+  movie_genre      movie_genre[]
+}
+
+model movie_actors {
+  idmovie_actors                Int           @id @unique(map: "idmovie_actors_UNIQUE")
+  complete_name                 String        @unique(map: "complete_name_UNIQUE") @db.VarChar(45)
+  movie_details_idmovie_details Int
+  movie_details                 movie_details @relation(fields: [movie_details_idmovie_details], references: [idmovie_details], onDelete: NoAction, onUpdate: NoAction, map: "fk_movie_actors_movie_details1")
+
+  @@index([movie_details_idmovie_details], map: "fk_movie_actors_movie_details1_idx")
+}
+
+model movie_age_rating {
+  idmovie_age_rating Int     @id @unique(map: "idmovie_age_rating_UNIQUE") @default(autoincrement())
+  title              String? @db.VarChar(45)
+  age                Int?
+  description        String? @db.VarChar(45)
+  acronym            String? @db.VarChar(6)
+  movie_idmovie      Int
+  movie              movie   @relation(fields: [movie_idmovie], references: [idmovie], onDelete: NoAction, onUpdate: NoAction, map: "fk_movie_age_rating_movie1")
+
+  @@index([movie_idmovie], map: "fk_movie_age_rating_movie1_idx")
+}
+
+model movie_country {
+  idmovie_country               Int           @id @unique(map: "idmovie_country_UNIQUE")
+  name                          String        @unique(map: "name_UNIQUE") @db.VarChar(45)
+  movie_details_idmovie_details Int
+  movie_details                 movie_details @relation(fields: [movie_details_idmovie_details], references: [idmovie_details], onDelete: NoAction, onUpdate: NoAction, map: "fk_movie_country_movie_details1")
+
+  @@index([movie_details_idmovie_details], map: "fk_movie_country_movie_details1_idx")
+}
+
+model movie_details {
+  idmovie_details Int             @id @unique(map: "idmovie_details_UNIQUE") @default(autoincrement())
+  overview        String          @db.VarChar(1000)
+  original_title  String          @db.VarChar(45)
+  director        String          @db.VarChar(45)
+  languaje        String          @db.VarChar(45)
+  movie_idmovie   Int
+  movie_actors    movie_actors[]
+  movie_country   movie_country[]
+  movie           movie           @relation(fields: [movie_idmovie], references: [idmovie], onDelete: NoAction, onUpdate: NoAction, map: "fk_movie_details_movie1")
+
+  @@index([movie_idmovie], map: "fk_movie_details_movie1_idx")
+}
+
+model movie_genre {
+  idmovie_genre Int    @id
+  type          String @db.VarChar(45)
+  movie_idmovie Int
+  movie         movie  @relation(fields: [movie_idmovie], references: [idmovie], onDelete: NoAction, onUpdate: NoAction, map: "fk_movie_genre_movie")
+
+  @@index([movie_idmovie], map: "fk_movie_genre_movie_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model room_seats {
+  idroom_seats                Int          @id @default(autoincrement()) @map("idroom-seats")
+  location                    String       @db.VarChar(45)
+  state                       String       @db.VarChar(45)
+  position                    String       @db.VarChar(45)
+  theatre_room_idtheatre_room Int
+  booking_idbooking           Int
+  booking                     booking      @relation(fields: [booking_idbooking], references: [idbooking], onDelete: NoAction, onUpdate: NoAction, map: "fk_room-seats_booking1")
+  theatre_room                theatre_room @relation(fields: [theatre_room_idtheatre_room], references: [idtheatre_room], onDelete: NoAction, onUpdate: NoAction, map: "fk_room-seats_theatre_room1")
+
+  @@index([booking_idbooking], map: "fk_room-seats_booking1_idx")
+  @@index([theatre_room_idtheatre_room], map: "fk_room-seats_theatre_room1_idx")
+  @@map("room-seats")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model room_details {
+  idroom_details              Int          @id @unique(map: "idroom_format_UNIQUE") @default(autoincrement())
+  format                      String       @db.VarChar(4)
+  languaje                    String       @db.VarChar(45)
+  type                        String       @db.VarChar(45)
+  theatre_room_idtheatre_room Int
+  calendar                    calendar[]
+  theatre_room                theatre_room @relation(fields: [theatre_room_idtheatre_room], references: [idtheatre_room], onDelete: NoAction, onUpdate: NoAction, map: "fk_room_details_theatre_room1")
+
+  @@index([theatre_room_idtheatre_room], map: "fk_room_details_theatre_room1_idx")
+}
+
+model theatre {
+  idtheatre    Int            @id @unique(map: "idtheatre_UNIQUE") @default(autoincrement())
+  name         String?        @db.VarChar(45)
+  theatre_room theatre_room[]
+}
+
+model theatre_room {
+  idtheatre_room    Int            @id @default(autoincrement())
+  theatre_idtheatre Int
+  booking_idbooking Int
+  room_seats        room_seats[]
+  room_details      room_details[]
+  booking           booking        @relation(fields: [booking_idbooking], references: [idbooking], onDelete: NoAction, onUpdate: NoAction, map: "fk_theatre_room_booking1")
+  theatre           theatre        @relation(fields: [theatre_idtheatre], references: [idtheatre], onDelete: NoAction, onUpdate: NoAction, map: "fk_theatre_room_theatre1")
+
+  @@index([booking_idbooking], map: "fk_theatre_room_booking1_idx")
+  @@index([theatre_idtheatre], map: "fk_theatre_room_theatre1_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model user {
+  idUser    Int       @id @unique(map: "idUser_UNIQUE") @default(autoincrement())
+  name      String    @db.VarChar(45)
+  lastName  String    @db.VarChar(45)
+  email     String    @unique(map: "email_UNIQUE") @db.VarChar(100)
+  gender    String?   @db.VarChar(45)
+  birthDate DateTime? @db.Date
+  address   String?   @db.VarChar(45)
+  state     String?   @db.VarChar(45)
+  city      String?   @db.VarChar(45)
+  rol       String    @db.VarChar(45)
+  booking   booking[]
+}
