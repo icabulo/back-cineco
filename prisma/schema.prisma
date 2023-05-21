@@ -8,11 +8,11 @@ datasource db {
 }
 
 model booking {
-  idbooking    Int            @id @unique(map: "idbooking_UNIQUE") @default(autoincrement())
-  User_idUser  Int
-  user         user           @relation(fields: [User_idUser], references: [idUser], onDelete: NoAction, onUpdate: NoAction, map: "fk_booking_User1")
-  room_seats   room_seats[]
-  theatre_room theatre_room[]
+  idbooking   Int          @id @unique(map: "idbooking_UNIQUE") @default(autoincrement())
+  User_idUser Int
+  user        user         @relation(fields: [User_idUser], references: [idUser], onDelete: NoAction, onUpdate: NoAction, map: "fk_booking_User1")
+  movie       movie[]
+  room_seats  room_seats[]
 
   @@index([User_idUser], map: "fk_booking_User1_idx")
 }
@@ -50,17 +50,37 @@ model calendar_hours {
   @@index([calendar_days_idtable1], map: "fk_calendar_hours_calendar_days1_idx")
 }
 
+model cinema {
+  idcinema    Int           @id @unique(map: "idcinema_UNIQUE") @default(autoincrement())
+  name        String?       @db.VarChar(45)
+  cinema_room cinema_room[]
+}
+
+model cinema_room {
+  idcinema_room   Int            @id @default(autoincrement())
+  cinema_idcinema Int
+  cinema          cinema         @relation(fields: [cinema_idcinema], references: [idcinema], onDelete: NoAction, onUpdate: NoAction, map: "fk_cinema_room_cinema1")
+  room_seats      room_seats[]
+  room_details    room_details[]
+
+  @@index([cinema_idcinema], map: "fk_cinema_room_cinema1_idx")
+}
+
 model movie {
-  idmovie          Int                @id @unique(map: "idmovie_UNIQUE") @default(autoincrement())
-  title            String             @db.VarChar(45)
-  englishTitle     String             @db.VarChar(45)
-  premiereDate     DateTime           @db.Date
-  duration         String             @db.VarChar(45)
-  age_restriction  String             @default("false") @db.VarChar(45)
-  calendar         calendar[]
-  movie_age_rating movie_age_rating[]
-  movie_details    movie_details[]
-  movie_genre      movie_genre[]
+  idmovie           Int                @id @unique(map: "idmovie_UNIQUE") @default(autoincrement())
+  title             String             @db.VarChar(45)
+  englishTitle      String             @db.VarChar(45)
+  premiereDate      DateTime           @db.Date
+  duration          String             @db.VarChar(45)
+  age_restriction   String             @default("false") @db.VarChar(45)
+  booking_idbooking Int
+  calendar          calendar[]
+  booking           booking            @relation(fields: [booking_idbooking], references: [idbooking], onDelete: NoAction, onUpdate: NoAction, map: "fk_movie_booking1")
+  movie_age_rating  movie_age_rating[]
+  movie_details     movie_details[]
+  movie_genre       movie_genre[]
+
+  @@index([booking_idbooking], map: "fk_movie_booking1_idx")
 }
 
 model movie_actors {
@@ -118,50 +138,31 @@ model movie_genre {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model room_seats {
-  idroom_seats                Int          @id @default(autoincrement()) @map("idroom-seats")
-  location                    String       @db.VarChar(45)
-  state                       String       @db.VarChar(45)
-  position                    String       @db.VarChar(45)
-  theatre_room_idtheatre_room Int
-  booking_idbooking           Int
-  booking                     booking      @relation(fields: [booking_idbooking], references: [idbooking], onDelete: NoAction, onUpdate: NoAction, map: "fk_room-seats_booking1")
-  theatre_room                theatre_room @relation(fields: [theatre_room_idtheatre_room], references: [idtheatre_room], onDelete: NoAction, onUpdate: NoAction, map: "fk_room-seats_theatre_room1")
+  idroom_seats              Int         @id @default(autoincrement()) @map("idroom-seats")
+  location                  String      @db.VarChar(45)
+  state                     String      @db.VarChar(45)
+  position                  String      @db.VarChar(45)
+  booking_idbooking         Int
+  cinema_room_idcinema_room Int
+  booking                   booking     @relation(fields: [booking_idbooking], references: [idbooking], onDelete: NoAction, onUpdate: NoAction, map: "fk_room-seats_booking1")
+  cinema_room               cinema_room @relation(fields: [cinema_room_idcinema_room], references: [idcinema_room], onDelete: NoAction, onUpdate: NoAction, map: "fk_room-seats_cinema_room1")
 
   @@index([booking_idbooking], map: "fk_room-seats_booking1_idx")
-  @@index([theatre_room_idtheatre_room], map: "fk_room-seats_theatre_room1_idx")
+  @@index([cinema_room_idcinema_room], map: "fk_room-seats_cinema_room1_idx")
   @@map("room-seats")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model room_details {
-  idroom_details              Int          @id @unique(map: "idroom_format_UNIQUE") @default(autoincrement())
-  format                      String       @db.VarChar(4)
-  languaje                    String       @db.VarChar(45)
-  type                        String       @db.VarChar(45)
-  theatre_room_idtheatre_room Int
-  calendar                    calendar[]
-  theatre_room                theatre_room @relation(fields: [theatre_room_idtheatre_room], references: [idtheatre_room], onDelete: NoAction, onUpdate: NoAction, map: "fk_room_details_theatre_room1")
+  idroom_details            Int         @id @unique(map: "idroom_format_UNIQUE") @default(autoincrement())
+  format                    String      @db.VarChar(4)
+  languaje                  String      @db.VarChar(45)
+  type                      String      @db.VarChar(45)
+  cinema_room_idcinema_room Int
+  calendar                  calendar[]
+  cinema_room               cinema_room @relation(fields: [cinema_room_idcinema_room], references: [idcinema_room], onDelete: NoAction, onUpdate: NoAction, map: "fk_room_details_cinema_room1")
 
-  @@index([theatre_room_idtheatre_room], map: "fk_room_details_theatre_room1_idx")
-}
-
-model theatre {
-  idtheatre    Int            @id @unique(map: "idtheatre_UNIQUE") @default(autoincrement())
-  name         String?        @db.VarChar(45)
-  theatre_room theatre_room[]
-}
-
-model theatre_room {
-  idtheatre_room    Int            @id @default(autoincrement())
-  theatre_idtheatre Int
-  booking_idbooking Int
-  room_seats        room_seats[]
-  room_details      room_details[]
-  booking           booking        @relation(fields: [booking_idbooking], references: [idbooking], onDelete: NoAction, onUpdate: NoAction, map: "fk_theatre_room_booking1")
-  theatre           theatre        @relation(fields: [theatre_idtheatre], references: [idtheatre], onDelete: NoAction, onUpdate: NoAction, map: "fk_theatre_room_theatre1")
-
-  @@index([booking_idbooking], map: "fk_theatre_room_booking1_idx")
-  @@index([theatre_idtheatre], map: "fk_theatre_room_theatre1_idx")
+  @@index([cinema_room_idcinema_room], map: "fk_room_details_cinema_room1_idx")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
