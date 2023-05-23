@@ -52,7 +52,7 @@ model calendar_hours {
 
 model cinema {
   idcinema    Int           @id @unique(map: "idcinema_UNIQUE") @default(autoincrement())
-  name        String?       @db.VarChar(45)
+  name        String        @unique(map: "name_UNIQUE") @db.VarChar(45)
   cinema_room cinema_room[]
 }
 

@@ -2,6 +2,8 @@ import * as dotenv from "dotenv"; // see https://github.com/motdotla/dotenv#how-
 dotenv.config();
 import express from "express";
 import usersRoutes from "./routes/users.routes.js";
+import cinemaRoutes from "./routes/cinema.routes.js";
+
 // import listsRoutes from "./routes/lists.routes.js";
 // import itemsRoutes from "./routes/items.routes.js";
 import cors from "cors";
@@ -21,6 +23,8 @@ app.get("/", (req, res) => {
 });
 
 app.use("/user", usersRoutes);
+app.use("/api/cinema", cinemaRoutes);
+
 // app.use("/api/favs", listsRoutes);
 // app.use("/item", itemsRoutes);
 
