@@ -3,6 +3,7 @@ dotenv.config();
 import express from "express";
 import usersRoutes from "./routes/users.routes.js";
 import cinemaRoutes from "./routes/cinema.routes.js";
+import moviesRoutes from "./routes/movie.routes.js";
 
 // import listsRoutes from "./routes/lists.routes.js";
 // import itemsRoutes from "./routes/items.routes.js";
@@ -16,7 +17,7 @@ app.use(express.json());
 app.use(cors());
 
 const welcomeText =
-  "<div> <h1>my cinema API</h1> <p>See instructions on the Github repository:</p><p><strong>https://github.com/icabulo/</strong></p></div>";
+  "<div> <h1>my cinema API</h1> <p>See instructions on the Github repository:</p><p><strong>https://github.com/icabulo/back-cineco</strong></p></div>";
 
 app.get("/", (req, res) => {
   res.send(welcomeText);
@@ -24,6 +25,7 @@ app.get("/", (req, res) => {
 
 app.use("/user", usersRoutes);
 app.use("/api/cinema", cinemaRoutes);
+app.use("/api/movies", moviesRoutes);
 
 // app.use("/api/favs", listsRoutes);
 // app.use("/item", itemsRoutes);
