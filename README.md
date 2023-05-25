@@ -15,3 +15,9 @@ For the creation of the backend code I will be creating each of the endpoint for
 5. (x) update a cinema name - done
 6. (x) delete a cinema - done
 7. (x) filter cinemas by name - done
+
+## Movie Table
+
+1. This table will save all the movie atributes for a register to be shown in the frontend.
+2. movie.routes, and movie.controller create:
+3. (x) get all movies endpoint - done

@@ -11,7 +11,6 @@ model booking {
   idbooking   Int          @id @unique(map: "idbooking_UNIQUE") @default(autoincrement())
   User_idUser Int
   user        user         @relation(fields: [User_idUser], references: [idUser], onDelete: NoAction, onUpdate: NoAction, map: "fk_booking_User1")
-  movie       movie[]
   room_seats  room_seats[]
 
   @@index([User_idUser], map: "fk_booking_User1_idx")
@@ -67,20 +66,22 @@ model cinema_room {
 }
 
 model movie {
-  idmovie           Int                @id @unique(map: "idmovie_UNIQUE") @default(autoincrement())
-  title             String             @db.VarChar(45)
-  englishTitle      String             @db.VarChar(45)
-  premiereDate      DateTime           @db.Date
-  duration          String             @db.VarChar(45)
-  age_restriction   String             @default("false") @db.VarChar(45)
-  booking_idbooking Int
-  calendar          calendar[]
-  booking           booking            @relation(fields: [booking_idbooking], references: [idbooking], onDelete: NoAction, onUpdate: NoAction, map: "fk_movie_booking1")
-  movie_age_rating  movie_age_rating[]
-  movie_details     movie_details[]
-  movie_genre       movie_genre[]
-
-  @@index([booking_idbooking], map: "fk_movie_booking1_idx")
+  idmovie          Int                @id @unique(map: "idmovie_UNIQUE") @default(autoincrement())
+  imagen           String             @db.VarChar(500)
+  title            String             @db.VarChar(45)
+  estreno          String             @db.VarChar(45)
+  genero           String             @db.VarChar(45)
+  edadRecomendada  String             @db.VarChar(45)
+  duracion         String             @db.VarChar(45)
+  type             String             @db.VarChar(45)
+  englishTitle     String?            @db.VarChar(45)
+  premiereDate     DateTime?          @db.Date
+  duration         String?            @db.VarChar(45)
+  age_restriction  String?            @db.VarChar(45)
+  calendar         calendar[]
+  movie_age_rating movie_age_rating[]
+  movie_details    movie_details[]
+  movie_genre      movie_genre[]
 }
 
 model movie_actors {
